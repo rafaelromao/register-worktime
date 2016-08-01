@@ -1,6 +1,8 @@
 # Register-WorkTime
 Update your worktime on **Toggl**, aggregating data from **WakaTime**, **Visual Studio Online** and the oficial appointment system used at *Take.net*.
 
+*Work in progress*
+
 ## Prerequisites
 - cURL installed in place of the default `curl` alias used for `Invoke-WebRequest`. See [this link](http://thesociablegeek.com/azure/using-curl-in-powershell/) for details.
 
@@ -44,3 +46,5 @@ In your first call, some parameters must be informed. After that, they are store
 `--toggl-apitoken` or `-t`
 - Inform the path for your time clock excel file:
 `--clock-file` or `-c`
+- Inform the date of evaluation:
+`--date` or `-d`
