@@ -166,9 +166,18 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
 		return $null
 	}
 
-    $togglAuth = "${arguments.togglApiToken}:api_token"
+    $togglAuth = $arguments.togglApiToken + ":api_token"
+    if ($arguments.debug) {
+        Write-Host "togglAuth: $togglAuth" 
+    }
     $workspacesUri = "https://www.toggl.com/api/v8/workspaces"
-    $response = curl -k -v -u $togglAuth -X GET $workspacesUri
+    if ($arguments.debug) {
+        Write-Host "workspacesUri: $workspacesUri" 
+    }
+    $response = curl -k -v -u $togglAuth -X GET $workspacesUri 2> $null 
+    if ($arguments.debug) {
+        Write-Host "response: $response" 
+    }
     $workspaces = $response | ConvertFrom-Json 2> $null
     $workspaceId = $workspaces | Where-Object -Property name -eq ${arguments.togglWorkspace} | Select-Object -ExpandProperty id
 	if ($arguments.debug) {
@@ -176,7 +185,7 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
 	}
 
     $projectUri = "https://www.toggl.com/api/v8/workspaces/$workspaceId/projects"
-    $response = curl -k -v -u $togglAuth -X GET $projectUri
+    $response = curl -k -v -u $togglAuth -X GET $projectUri 2> $null
     $projects = $response | ConvertFrom-Json 2> $null
     $createProjectUri = "https://www.toggl.com/api/v8/projects"
 
