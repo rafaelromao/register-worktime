@@ -202,7 +202,7 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
     $projects = $response | ConvertFrom-Json 2> $null
 	if ($arguments.debug) {
 		Write-Host $projectUri 
-		Write-Host "projects: $projects" 
+		Write-Host "projects: " (ConvertTo-Json $projects)  
 	}
     $createProjectUri = "https://www.toggl.com/api/v8/projects"
 
@@ -215,7 +215,7 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
         $projectName = $duration | Select-Object -ExpandProperty project 
         $project = $projects | Where-Object -Property name -eq $projectName
         if ($project -eq $null) {
-           $createProjectPayload = '{"project":{"name":"' + $projectName + '","wid":' + $workspaceId + '}}'
+           $createProjectPayload = '{\"project\":{\"name\":\"' + $projectName + '\",\"wid\":' + $workspaceId + '}}'
            if ($arguments.debug) {
         	   Write-Host $createProjectUri 
                Write-Host "createProjectPayload: $createProjectPayload" 
@@ -235,7 +235,7 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
 
 
 	if ($arguments.debug) {
-		Write-Host "durations: $durations" 
+		Write-Host "durations: " (ConvertTo-Json $durations) 
 	}
 
 
