@@ -155,15 +155,27 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
 		Write-Host "response: $response" 
 	}
 	$durations = $response | ConvertFrom-Json 2> $null
-	if ($arguments.debug) {
-		Write-Host "durations: $durations" 
-	}
 	if ($durations -eq $null) {
 		return $null
+	}
+	if ($arguments.debug) {
+		Write-Host "durations: $durations" 
 	}
     $durations = $durations | Select-Object -ExpandProperty data
 	if ($durations -eq $null) {
 		return $null
+	}
+	if ($arguments.debug) {
+		Write-Host "durations: $durations" 
+	}
+    if ($durations -is [system.array]) {
+        $durations = $durations
+    }
+    else {
+        $durations = @($durations)
+    }
+	if ($arguments.debug) {
+		Write-Host "durations: " (ConvertTo-Json $durations) 
 	}
 
     $togglAuth = $arguments.togglApiToken + ":api_token"
@@ -179,7 +191,8 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
         Write-Host "response: $response" 
     }
     $workspaces = $response | ConvertFrom-Json 2> $null
-    $workspaceId = $workspaces | Where-Object -Property name -eq ${arguments.togglWorkspace} | Select-Object -ExpandProperty id
+    $togglWorkspace = $arguments.togglWorkspace 
+    $workspaceId = $workspaces | Where-Object -Property name -eq $togglWorkspace | Select-Object -ExpandProperty id
 	if ($arguments.debug) {
 		Write-Host "workspaceId: $workspaceId" 
 	}
@@ -187,7 +200,15 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
     $projectUri = "https://www.toggl.com/api/v8/workspaces/$workspaceId/projects"
     $response = curl -k -v -u $togglAuth -X GET $projectUri 2> $null
     $projects = $response | ConvertFrom-Json 2> $null
+	if ($arguments.debug) {
+		Write-Host $projectUri 
+		Write-Host "projects: $projects" 
+	}
     $createProjectUri = "https://www.toggl.com/api/v8/projects"
+
+	if ($arguments.debug) {
+		Write-Host "durations.Length: " $durations.Length 
+	}
 
     for ($i = 0; $i -lt $durations.Length; $i++) {
         $duration = $durations[$i]
@@ -196,9 +217,10 @@ function GetWorkTimeEntriesFromWakaTime($arguments) {
         if ($project -eq $null) {
            $createProjectPayload = '{"project":{"name":"' + $projectName + '","wid":' + $workspaceId + '}}'
            if ($arguments.debug) {
+        	   Write-Host $createProjectUri 
                Write-Host "createProjectPayload: $createProjectPayload" 
            }
-           $response = curl -k -v -u $togglAuth -H $contentType -d $createProjectPayload -X POST $createProjectUri
+           $response = curl -k -v -u $togglAuth -H $contentType -d $createProjectPayload -X POST $createProjectUri 2> $null
            if ($arguments.debug) {
                Write-Host "response: $response" 
            }
